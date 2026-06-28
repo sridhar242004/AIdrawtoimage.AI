@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/banner.svg" alt="NeuroDraw — AI Sketch to Image" width="100%"/>
+  <img src="banner.jpg" alt="NeuroDraw — AI Sketch to Image" width="100%"/>
 </div>
 
 <br/>
