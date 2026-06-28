@@ -4,7 +4,7 @@
 <br />
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/YOUR_GITHUB/neurodraw/main/static/logo-dark.svg">
-  <img alt="NeuroDraw" src="https://raw.githubusercontent.com/YOUR_GITHUB/neurodraw/main/static/logo.svg" width="96" height="96">
+  <img alt="NeuroDraw" src="aidraw.png" width="96" height="96">
 </picture>
 
 # NeuroDraw
