@@ -81,7 +81,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
       <td align="center"><img src="images/fantasy.png" alt="result" width="200"></td>
     </tr>
     <tr>
-      <td align="center"><em>(your 30-second scrawl)</em></td>
+      <td align="center"><code>style: Sketch </code></td>
       <td align="center"><code>style: photorealistic</code></td>
       <td align="center"><code>style: cyberpunk</code></td>
       <td align="center"><code>style: fantasy</code></td>
