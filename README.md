@@ -62,14 +62,32 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 
 <div align="center">
 
-### Before → After
+<h3>Before → After</h3>
 
-| Sketch | Photorealistic | Cyberpunk | Fantasy |
-|:---:|:---:|:---:|:---:|
-| ![sketch](images/Screenshot 2026-06-18 161331.png) | ![result](images/photorealistic.png) | ![result](images/cyber.png) | ![result](images/fantasy.png) |
-| *(your 30-second scrawl)* | `style: photorealistic` | `style: cyberpunk` | `style: fantasy` |
-
-> 📌 **Replace the placeholders above** with your actual generated images. See `docs/examples/` for the sketch SVGs.
+<table>
+  <thead>
+    <tr>
+      <th align="center">Sketch</th>
+      <th align="center">Photorealistic</th>
+      <th align="center">Cyberpunk</th>
+      <th align="center">Fantasy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><img src="images/Screenshot%202026-06-18%20161331.png" alt="sketch" width="200"></td>
+      <td align="center"><img src="images/photorealistic.png" alt="result" width="200"></td>
+      <td align="center"><img src="images/cyber.png" alt="result" width="200"></td>
+      <td align="center"><img src="images/fantasy.png" alt="result" width="200"></td>
+    </tr>
+    <tr>
+      <td align="center"><em>(your 30-second scrawl)</em></td>
+      <td align="center"><code>style: photorealistic</code></td>
+      <td align="center"><code>style: cyberpunk</code></td>
+      <td align="center"><code>style: fantasy</code></td>
+    </tr>
+  </tbody>
+</table>
 
 </div>
 
