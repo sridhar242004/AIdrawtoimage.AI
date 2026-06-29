@@ -1,201 +1,548 @@
-<svg viewBox="0 0 1280 340" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 340" width="1280" height="340" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
   <defs>
-    <!-- dot grid pattern -->
-    <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-      <circle cx="0.8" cy="0.8" r="0.8" fill="#ffffff" opacity="0.055"/>
-    </pattern>
-    <!-- orange glow -->
-    <radialGradient id="glowEmber" cx="18%" cy="55%" r="45%" gradientUnits="objectBoundingBox">
-      <stop offset="0%"   stop-color="#FF5B35" stop-opacity="0.18"/>
+    <!-- FILTERS -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="strong-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise"/>
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.03 0" in="noise" result="coloredNoise"/>
+      <feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="composite"/>
+      <feBlend mode="overlay" in="composite" in2="SourceGraphic"/>
+    </filter>
+
+    <!-- GRADIENTS -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF5B35" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#FF5B35" stop-opacity="0.8">
+        <animate attributeName="stop-color" values="#FF5B35;#FF8C42;#FF5B35" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="70%" stop-color="#4F9EFF" stop-opacity="0.8">
+        <animate attributeName="stop-color" values="#4F9EFF;#6BB5FF;#4F9EFF" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#4F9EFF" stop-opacity="0"/>
+    </linearGradient>
+    
+    <radialGradient id="emberGlow" cx="20%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#FF5B35" stop-opacity="0.25">
+        <animate attributeName="stop-opacity" values="0.25;0.4;0.25" dur="3s" repeatCount="indefinite"/>
+      </stop>
       <stop offset="100%" stop-color="#FF5B35" stop-opacity="0"/>
     </radialGradient>
-    <!-- blue glow -->
-    <radialGradient id="glowBlue" cx="82%" cy="45%" r="45%" gradientUnits="objectBoundingBox">
-      <stop offset="0%"   stop-color="#4F9EFF" stop-opacity="0.10"/>
+    
+    <radialGradient id="blueGlow" cx="80%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#4F9EFF" stop-opacity="0.15">
+        <animate attributeName="stop-opacity" values="0.15;0.3;0.15" dur="4s" repeatCount="indefinite"/>
+      </stop>
       <stop offset="100%" stop-color="#4F9EFF" stop-opacity="0"/>
     </radialGradient>
-    <!-- subtle center glow -->
-    <radialGradient id="glowCenter" cx="50%" cy="50%" r="50%" gradientUnits="objectBoundingBox">
-      <stop offset="0%"   stop-color="#1C1C2E" stop-opacity="1"/>
-      <stop offset="100%" stop-color="#050508" stop-opacity="1"/>
-    </radialGradient>
-    <!-- border gradient -->
-    <linearGradient id="borderLine" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   stop-color="#FF5B35" stop-opacity="0"/>
-      <stop offset="30%"  stop-color="#FF5B35" stop-opacity="0.5"/>
-      <stop offset="70%"  stop-color="#4F9EFF" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#4F9EFF" stop-opacity="0"/>
-    </linearGradient>
-    <!-- logo gradient -->
+    
     <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#FF7A55"/>
+      <stop offset="0%" stop-color="#FF7A55"/>
       <stop offset="100%" stop-color="#FF3B10"/>
     </linearGradient>
-    <!-- wordmark gradient -->
+    
     <linearGradient id="wordmarkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#EEEEF8"/>
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#EEEEF8"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
     </linearGradient>
-    <!-- sketch stroke animation feel -->
-    <filter id="glow-fx" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
+    
+    <linearGradient id="shimmerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- PATTERNS -->
+    <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="0.8" cy="0.8" r="0.8" fill="#ffffff" opacity="0.04">
+        <animate attributeName="opacity" values="0.04;0.08;0.04" dur="4s" repeatCount="indefinite"/>
+      </circle>
+    </pattern>
+
+    <!-- VIGNETTE -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+      <stop offset="50%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+    </radialGradient>
   </defs>
 
-  <!-- ── BASE ── -->
+  <style>
+    /* ── Core Animations ── */
+    .sketch-line {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: draw 1.5s ease-out forwards;
+    }
+    @keyframes draw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .sketch-glow {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: draw 1.5s ease-out forwards, fadeGlow 2s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes fadeGlow {
+      0%   { opacity: 0.5; }
+      60%  { opacity: 0.1; }
+      100% { opacity: 0; }
+    }
+
+    .float-anim {
+      animation: float 5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    .pulse-anim {
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.08); }
+    }
+
+    .glow-text {
+      animation: glow 3s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+      50%      { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+    }
+
+    .scanline {
+      animation: scan 4s linear infinite;
+    }
+    @keyframes scan {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(270px); }
+    }
+
+    .kenburns {
+      animation: kenburns 15s ease-in-out infinite alternate;
+      transform-origin: 164px 85px;
+    }
+    @keyframes kenburns {
+      0%   { transform: scale(1) translate(0, 0); }
+      100% { transform: scale(1.08) translate(-8px, -3px); }
+    }
+
+    .rotate-slow {
+      animation: rotate 25s linear infinite;
+      transform-origin: 238px 38px;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .cursor-blink {
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
+
+    .energy-pulse {
+      animation: energy 2s ease-in-out infinite;
+    }
+    @keyframes energy {
+      0%, 100% { stroke-opacity: 0.4; stroke-width: 1.5; }
+      50%      { stroke-opacity: 1; stroke-width: 2.5; }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .heartbeat {
+      animation: heartbeat 2s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15%      { transform: scale(1.15); }
+      30%      { transform: scale(1); }
+      45%      { transform: scale(1.15); }
+      60%      { transform: scale(1); }
+    }
+
+    .particle {
+      animation: particle-rise linear infinite;
+      opacity: 0;
+    }
+    @keyframes particle-rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      15%  { opacity: 0.8; }
+      85%  { opacity: 0.8; }
+      100% { transform: translateY(-150px) translateX(40px); opacity: 0; }
+    }
+
+    .chip {
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .chip:hover rect {
+      stroke-opacity: 1;
+      fill-opacity: 0.3;
+      filter: url(#glow);
+    }
+  </style>
+
+  <script>
+    <![CDATA[
+      // Generate 50 random ambient particles
+      window.addEventListener('load', function() {
+        const g = document.getElementById('particles');
+        const colors = ['#FF5B35', '#4F9EFF', '#FFD700', '#FFFFFF', '#34D399'];
+        for (let i = 0; i < 50; i++) {
+          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', Math.random() * 1280);
+          c.setAttribute('cy', Math.random() * 340);
+          c.setAttribute('r', Math.random() * 1.2 + 0.3);
+          c.setAttribute('fill', colors[Math.floor(Math.random() * colors.length)]);
+          c.style.animationDuration = (Math.random() * 6 + 4) + 's';
+          c.style.animationDelay = (Math.random() * 5) + 's';
+          c.classList.add('particle');
+          g.appendChild(c);
+        }
+      });
+
+      // Mouse-reactive parallax on ambient glows
+      document.addEventListener('mousemove', function(e) {
+        const svg = document.querySelector('svg');
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const mx = loc.x / 1280;
+        const my = loc.y / 340;
+
+        const ember = document.getElementById('emberGlow');
+        const blue = document.getElementById('blueGlow');
+        if (ember) {
+          ember.setAttribute('cx', (15 + mx * 10) + '%');
+          ember.setAttribute('cy', (55 + my * 10) + '%');
+        }
+        if (blue) {
+          blue.setAttribute('cx', (85 - mx * 10) + '%');
+          blue.setAttribute('cy', (35 - my * 10) + '%');
+        }
+      });
+    ]]>
+  </script>
+
+  <!-- ═══════════════════════════════════════════
+       BACKGROUND
+  ═══════════════════════════════════════════ -->
   <rect width="1280" height="340" fill="#050508"/>
-  <rect width="1280" height="340" fill="url(#glowCenter)"/>
+  <rect width="1280" height="340" fill="url(#emberGlow)"/>
+  <rect width="1280" height="340" fill="url(#blueGlow)"/>
   <rect width="1280" height="340" fill="url(#grid)"/>
-  <rect width="1280" height="340" fill="url(#glowEmber)"/>
-  <rect width="1280" height="340" fill="url(#glowBlue)"/>
 
-  <!-- ── TOP ACCENT LINE ── -->
-  <rect x="0" y="0" width="1280" height="1" fill="url(#borderLine)" opacity="0.6"/>
-  <!-- ── BOTTOM ACCENT LINE ── -->
-  <rect x="0" y="339" width="1280" height="1" fill="url(#borderLine)" opacity="0.4"/>
+  <!-- ═══════════════════════════════════════════
+       BORDER LIGHT TRAVELERS
+  ═══════════════════════════════════════════ -->
+  <g>
+    <rect x="0" y="0" width="1280" height="2" fill="url(#borderGrad)"/>
+    <rect x="0" y="338" width="1280" height="2" fill="url(#borderGrad)"/>
 
-  <!-- ═══════════════════════════════════════
-       LEFT SIDE — SKETCH PANEL  (x: 60–460)
-  ═══════════════════════════════════════ -->
-  <!-- Sketch panel background -->
-  <rect x="60" y="52" width="360" height="236" rx="16" fill="#0C0C14" stroke="#FFFFFF" stroke-width="0.6" stroke-opacity="0.08"/>
+    <!-- Top orbs -->
+    <circle cy="1" r="25" fill="#FF5B35" opacity="0.4" filter="url(#strong-glow)">
+      <animate attributeName="cx" values="-50;1330" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.6;0" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cy="1" r="18" fill="#4F9EFF" opacity="0.4" filter="url(#strong-glow)">
+      <animate attributeName="cx" values="-50;1330" dur="4s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.6;0" dur="4s" begin="2s" repeatCount="indefinite"/>
+    </circle>
 
-  <!-- panel label -->
-  <rect x="72" y="64" width="62" height="18" rx="4" fill="#1C1C2E"/>
-  <text x="80" y="76.5" font-size="9" fill="#EEEEF8" opacity="0.4" letter-spacing="0.08em" font-family="'Courier New', monospace">SKETCH</text>
-
-  <!-- Mountain sketch lines inside panel -->
-  <g transform="translate(80, 90)" stroke="#EEEEF8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.75">
-    <!-- Mountain 1 -->
-    <path d="M10 160 L80 48 L150 160" stroke-width="2.2"/>
-    <!-- Mountain 2 -->
-    <path d="M100 160 L175 40 L252 160" stroke-width="2.2"/>
-    <!-- Ground -->
-    <path d="M0 160 L320 160" stroke-width="1.5"/>
-    <!-- Sun -->
-    <circle cx="225" cy="30" r="18" stroke-width="2"/>
-    <!-- Trees -->
-    <path d="M22 160 L22 142 L30 124 L38 142 L38 160" stroke-width="1.8"/>
-    <path d="M50 160 L50 146 L57 130 L64 146 L64 160" stroke-width="1.8"/>
-    <!-- Ground texture -->
-    <path d="M0 168 Q80 164 160 167 Q240 170 320 164" stroke-width="1.2" opacity="0.5"/>
-    <path d="M0 175 Q80 172 160 174 Q240 176 320 171" stroke-width="1.2" opacity="0.5"/>
+    <!-- Bottom orb -->
+    <circle cy="339" r="20" fill="#FF5B35" opacity="0.3" filter="url(#strong-glow)">
+      <animate attributeName="cx" values="1330;-50" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.5;0" dur="5s" repeatCount="indefinite"/>
+    </circle>
   </g>
 
-  <!-- panel dots (mac-style) -->
-  <circle cx="79"  cy="260" r="3.5" fill="#FF5F57" opacity="0.7"/>
-  <circle cx="92"  cy="260" r="3.5" fill="#FEBC2E" opacity="0.7"/>
-  <circle cx="105" cy="260" r="3.5" fill="#28C840" opacity="0.7"/>
+  <!-- ═══════════════════════════════════════════
+       LEFT PANEL — SKETCH
+  ═══════════════════════════════════════════ -->
+  <g>
+    <rect x="60" y="52" width="360" height="236" rx="16" fill="#0C0C14" stroke="#FFFFFF" stroke-width="0.6" stroke-opacity="0.08"/>
+    <!-- Breathing border accent -->
+    <rect x="60" y="52" width="360" height="236" rx="16" fill="none" stroke="#4F9EFF" stroke-width="1" stroke-opacity="0">
+      <animate attributeName="stroke-opacity" values="0;0.2;0" dur="4s" repeatCount="indefinite"/>
+    </rect>
 
-  <!-- ═══════════════════════════════════════
-       CENTER ARROW
-  ═══════════════════════════════════════ -->
+    <!-- Label -->
+    <rect x="72" y="64" width="62" height="18" rx="4" fill="#1C1C2E"/>
+    <text x="80" y="76.5" font-size="9" fill="#EEEEF8" opacity="0.4" letter-spacing="0.08em" font-family="'Courier New', monospace">SKETCH</text>
+    <rect x="135" y="74" width="2" height="8" fill="#FF5B35" class="cursor-blink"/>
+
+    <!-- Sketch content -->
+    <g transform="translate(80, 90)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Glow trails -->
+      <path class="sketch-glow" d="M10 160 L80 48 L150 160" stroke="#FF5B35" stroke-width="8" filter="url(#glow)" style="animation-delay: 0.3s"/>
+      <path class="sketch-glow" d="M100 160 L175 40 L252 160" stroke="#FF5B35" stroke-width="8" filter="url(#glow)" style="animation-delay: 0.8s"/>
+
+      <!-- Main lines -->
+      <g stroke="#EEEEF8" opacity="0.75">
+        <path class="sketch-line" d="M10 160 L80 48 L150 160" stroke-width="2.2" style="animation-delay: 0.3s"/>
+        <path class="sketch-line" d="M100 160 L175 40 L252 160" stroke-width="2.2" style="animation-delay: 0.8s"/>
+        <path class="sketch-line" d="M0 160 L320 160" stroke-width="1.5" style="animation-delay: 1.3s"/>
+        <circle class="sketch-line" cx="225" cy="30" r="18" stroke-width="2" style="animation-delay: 1.6s"/>
+        <path class="sketch-line" d="M22 160 L22 142 L30 124 L38 142 L38 160" stroke-width="1.8" style="animation-delay: 1.9s"/>
+        <path class="sketch-line" d="M50 160 L50 146 L57 130 L64 146 L64 160" stroke-width="1.8" style="animation-delay: 2.1s"/>
+        <path class="sketch-line" d="M0 168 Q80 164 160 167 Q240 170 320 164" stroke-width="1.2" opacity="0.5" style="animation-delay: 2.3s"/>
+        <path class="sketch-line" d="M0 175 Q80 172 160 174 Q240 176 320 171" stroke-width="1.2" opacity="0.5" style="animation-delay: 2.5s"/>
+      </g>
+    </g>
+
+    <!-- Mac dots -->
+    <circle cx="79" cy="260" r="3.5" fill="#FF5F57" opacity="0.7" class="pulse-anim"/>
+    <circle cx="92" cy="260" r="3.5" fill="#FEBC2E" opacity="0.7" class="pulse-anim" style="animation-delay: 0.3s"/>
+    <circle cx="105" cy="260" r="3.5" fill="#28C840" opacity="0.7" class="pulse-anim" style="animation-delay: 0.6s"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       CENTER — DATA FLOW
+  ═══════════════════════════════════════════ -->
   <g transform="translate(458, 148)">
-    <!-- arrow track -->
-    <rect x="0" y="14" width="72" height="2" rx="1" fill="url(#borderLine)" opacity="0.5"/>
-    <!-- arrow head -->
-    <path d="M58 8 L72 15 L58 22" stroke="#FF5B35" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <!-- ControlNet label -->
+    <rect x="0" y="14" width="72" height="2" rx="1" fill="url(#borderGrad)" opacity="0.6"/>
+    <path d="M58 8 L72 15 L58 22" stroke="#FF5B35" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" class="energy-pulse"/>
     <text x="36" y="10" text-anchor="middle" font-size="9" fill="#FF5B35" opacity="0.85" letter-spacing="0.06em" font-family="'Courier New', monospace">CONTROLNET</text>
+
+    <!-- Flowing packets -->
+    <circle r="2" fill="#FF5B35" filter="url(#glow)">
+      <animate attributeName="cx" values="0;72" dur="1.2s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="15;15" dur="1.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.5" fill="#4F9EFF" filter="url(#glow)">
+      <animate attributeName="cx" values="0;72" dur="1.2s" begin="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="15;15" dur="1.2s" begin="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" dur="1.2s" begin="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.8" fill="#FFD700" filter="url(#glow)">
+      <animate attributeName="cx" values="0;72" dur="1.2s" begin="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="15;15" dur="1.2s" begin="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" dur="1.2s" begin="0.8s" repeatCount="indefinite"/>
+    </circle>
   </g>
 
-  <!-- ═══════════════════════════════════════
-       RIGHT SIDE — AI RESULT PANEL (x: 550–920)
-  ═══════════════════════════════════════ -->
-  <rect x="550" y="52" width="360" height="236" rx="16" fill="#0C0C14" stroke="#FFFFFF" stroke-width="0.6" stroke-opacity="0.08"/>
-
-  <!-- panel label -->
-  <rect x="562" y="64" width="72" height="18" rx="4" fill="#1C1C2E"/>
-  <text x="570" y="76.5" font-size="9" fill="#FF5B35" opacity="0.85" letter-spacing="0.08em" font-family="'Courier New', monospace">AI RESULT</text>
-
-  <!-- Mountain art (stylised) -->
-  <g transform="translate(566, 88)">
-    <!-- Sky gradient layers -->
-    <rect x="0" y="0" width="328" height="170" rx="6" fill="#0D1B2A"/>
-    <!-- Sky colors -->
-    <rect x="0" y="0"   width="328" height="60"  rx="0" fill="#FF6B35" opacity="0.28"/>
-    <rect x="0" y="40"  width="328" height="60"  rx="0" fill="#C06030" opacity="0.22"/>
-    <rect x="0" y="90"  width="328" height="80"  rx="0" fill="#0A1628" opacity="0.6"/>
-    <!-- Sun glow -->
-    <circle cx="238" cy="38" r="28" fill="#FFAA44" opacity="0.18"/>
-    <circle cx="238" cy="38" r="18" fill="#FFD080" opacity="0.35"/>
-    <circle cx="238" cy="38" r="10" fill="#FFE8A0" opacity="0.75"/>
-    <!-- Mountain silhouettes -->
-    <polygon points="0,170 90,58 180,170" fill="#1A2840" opacity="0.85"/>
-    <polygon points="90,170 185,44 280,170" fill="#152235" opacity="0.9"/>
-    <polygon points="180,170 270,80 328,170" fill="#1E3050" opacity="0.8"/>
-    <!-- Mountain snow caps -->
-    <polygon points="84,68 90,58 96,68" fill="#E8EEF5" opacity="0.7"/>
-    <polygon points="178,55 185,44 192,55" fill="#E8EEF5" opacity="0.8"/>
-    <!-- Reflection / water strip -->
-    <rect x="0" y="148" width="328" height="22" fill="#0A1A30" rx="0"/>
-    <rect x="20" y="152" width="80" height="2" rx="1" fill="#FFD080" opacity="0.2"/>
-    <rect x="120" y="156" width="40" height="1.5" rx="1" fill="#FFD080" opacity="0.15"/>
-    <rect x="200" y="153" width="60" height="2" rx="1" fill="#FFD080" opacity="0.1"/>
-    <!-- Trees (dark silhouettes) -->
-    <rect x="18" y="130" width="4" height="22" fill="#0A1220"/>
-    <polygon points="12,135 20,110 28,135" fill="#0C1520"/>
-    <polygon points="9,130 20,105 31,130" fill="#0E1825" opacity="0.9"/>
-    <rect x="42" y="136" width="3" height="16" fill="#0A1220"/>
-    <polygon points="37,140 43.5,120 50,140" fill="#0C1520"/>
-    <!-- Pixel-feel noise overlay -->
-    <rect x="0" y="0" width="328" height="170" fill="url(#grid)" opacity="0.3" rx="6"/>
+  <!-- Cross-panel data stream -->
+  <g>
+    <circle r="2.5" fill="#FF5B35" filter="url(#glow)">
+      <animate attributeName="cx" values="440;550" dur="1.5s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="170;170" dur="1.5s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="1.5s" begin="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="2" fill="#4F9EFF" filter="url(#glow)">
+      <animate attributeName="cx" values="440;550" dur="1.5s" begin="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="170;170" dur="1.5s" begin="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="1.5s" begin="2.5s" repeatCount="indefinite"/>
+    </circle>
   </g>
 
-  <!-- panel dots -->
-  <circle cx="569"  cy="260" r="3.5" fill="#FF5F57" opacity="0.7"/>
-  <circle cx="582"  cy="260" r="3.5" fill="#FEBC2E" opacity="0.7"/>
-  <circle cx="595"  cy="260" r="3.5" fill="#28C840" opacity="0.7"/>
+  <!-- ═══════════════════════════════════════════
+       RIGHT PANEL — AI RESULT
+  ═══════════════════════════════════════════ -->
+  <g>
+    <rect x="550" y="52" width="360" height="236" rx="16" fill="#0C0C14" stroke="#FFFFFF" stroke-width="0.6" stroke-opacity="0.08"/>
+    <!-- Post-generation border glow -->
+    <rect x="550" y="52" width="360" height="236" rx="16" fill="none" stroke="#FF5B35" stroke-width="1" stroke-opacity="0">
+      <animate attributeName="stroke-opacity" values="0;0.3;0" dur="3s" begin="3s" repeatCount="indefinite"/>
+    </rect>
 
-  <!-- ═══════════════════════════════════════
-       RIGHT TEXT BLOCK (x: 955)
-  ═══════════════════════════════════════ -->
+    <!-- Label -->
+    <rect x="562" y="64" width="72" height="18" rx="4" fill="#1C1C2E"/>
+    <text x="570" y="76.5" font-size="9" fill="#FF5B35" opacity="0.85" letter-spacing="0.08em" font-family="'Courier New', monospace">AI RESULT</text>
+    <rect x="647" y="74" width="2" height="8" fill="#4F9EFF" class="cursor-blink" style="animation-delay: 0.5s"/>
 
-  <!-- Logo icon box -->
-  <rect x="955" y="72" width="52" height="52" rx="14" fill="url(#logoGrad)"/>
-  <!-- Logo pen icon -->
-  <g transform="translate(967, 84)" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 4a3.3 3.3 0 0 1 4.7 4.7L8.7 24.3 2 26l1.7-6.7Z"/>
-    <path d="m17.5 6.5 4.7 4.7"/>
+    <!-- Art -->
+    <g transform="translate(566, 88)">
+      <rect x="0" y="0" width="328" height="170" rx="6" fill="#0D1B2A"/>
+
+      <g class="kenburns">
+        <!-- Sky -->
+        <rect x="0" y="0" width="328" height="60" fill="#FF6B35" opacity="0.28">
+          <animate attributeName="opacity" values="0.28;0.35;0.28" dur="5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="0" y="40" width="328" height="60" fill="#C06030" opacity="0.22"/>
+        <rect x="0" y="90" width="328" height="80" fill="#0A1628" opacity="0.6"/>
+
+        <!-- Sun -->
+        <g>
+          <circle cx="238" cy="38" r="28" fill="#FFAA44" opacity="0.18" class="pulse-anim"/>
+          <circle cx="238" cy="38" r="18" fill="#FFD080" opacity="0.35" class="pulse-anim" style="animation-delay: 0.5s"/>
+          <circle cx="238" cy="38" r="10" fill="#FFE8A0" opacity="0.75" class="pulse-anim" style="animation-delay: 1s"/>
+          <g class="rotate-slow" opacity="0.3">
+            <line x1="238" y1="3" x2="238" y2="13" stroke="#FFD080" stroke-width="1"/>
+            <line x1="263" y1="13" x2="256" y2="20" stroke="#FFD080" stroke-width="1"/>
+            <line x1="273" y1="38" x2="263" y2="38" stroke="#FFD080" stroke-width="1"/>
+            <line x1="263" y1="63" x2="256" y2="56" stroke="#FFD080" stroke-width="1"/>
+            <line x1="238" y1="73" x2="238" y2="63" stroke="#FFD080" stroke-width="1"/>
+            <line x1="213" y1="63" x2="220" y2="56" stroke="#FFD080" stroke-width="1"/>
+            <line x1="203" y1="38" x2="213" y2="38" stroke="#FFD080" stroke-width="1"/>
+            <line x1="213" y1="13" x2="220" y2="20" stroke="#FFD080" stroke-width="1"/>
+          </g>
+        </g>
+
+        <!-- Mountains -->
+        <polygon points="0,170 90,58 180,170" fill="#1A2840" opacity="0.85"/>
+        <polygon points="90,170 185,44 280,170" fill="#152235" opacity="0.9"/>
+        <polygon points="180,170 270,80 328,170" fill="#1E3050" opacity="0.8"/>
+
+        <!-- Snow caps -->
+        <polygon points="84,68 90,58 96,68" fill="#E8EEF5" opacity="0.7"/>
+        <polygon points="178,55 185,44 192,55" fill="#E8EEF5" opacity="0.8"/>
+
+        <!-- Water -->
+        <rect x="0" y="148" width="328" height="22" fill="#0A1A30"/>
+        <rect x="20" y="152" width="80" height="2" rx="1" fill="#FFD080" opacity="0.2">
+          <animate attributeName="x" values="20;200;20" dur="8s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="120" y="156" width="40" height="1.5" rx="1" fill="#FFD080" opacity="0.15">
+          <animate attributeName="x" values="120;250;120" dur="6s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="200" y="153" width="60" height="2" rx="1" fill="#FFD080" opacity="0.1">
+          <animate attributeName="x" values="200;50;200" dur="10s" repeatCount="indefinite"/>
+        </rect>
+
+        <!-- Trees -->
+        <rect x="18" y="130" width="4" height="22" fill="#0A1220"/>
+        <polygon points="12,135 20,110 28,135" fill="#0C1520"/>
+        <polygon points="9,130 20,105 31,130" fill="#0E1825" opacity="0.9"/>
+        <rect x="42" y="136" width="3" height="16" fill="#0A1220"/>
+        <polygon points="37,140 43.5,120 50,140" fill="#0C1520"/>
+      </g>
+
+      <!-- Scanline -->
+      <rect x="0" y="0" width="328" height="2" fill="#FFFFFF" opacity="0.08" class="scanline"/>
+
+      <!-- Shimmer sweep -->
+      <rect x="0" y="0" width="80" height="170" fill="url(#shimmerGrad)" opacity="0">
+        <animate attributeName="x" values="-80;400" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.3;0" dur="5s" repeatCount="indefinite"/>
+      </rect>
+
+      <!-- Generating overlay -->
+      <g>
+        <rect x="0" y="0" width="328" height="170" fill="#0C0C14" opacity="0.85">
+          <animate attributeName="opacity" values="0.85;0" dur="1s" begin="3s" fill="freeze"/>
+        </rect>
+        <text x="164" y="75" text-anchor="middle" fill="#FF5B35" font-size="11" font-family="'Courier New', monospace" letter-spacing="0.1em" opacity="1">
+          <animate attributeName="opacity" values="1;0" dur="0.5s" begin="3.5s" fill="freeze"/>
+          GENERATING...
+        </text>
+        <rect x="64" y="95" width="200" height="2" rx="1" fill="#1C1C2E"/>
+        <rect x="64" y="95" width="0" height="2" rx="1" fill="#FF5B35">
+          <animate attributeName="width" values="0;200" dur="2.5s" begin="1s" fill="freeze"/>
+        </rect>
+      </g>
+
+      <!-- Noise -->
+      <rect x="0" y="0" width="328" height="170" fill="transparent" filter="url(#noise)" opacity="0.6" rx="6"/>
+    </g>
+
+    <!-- Mac dots -->
+    <circle cx="569" cy="260" r="3.5" fill="#FF5F57" opacity="0.7" class="pulse-anim"/>
+    <circle cx="582" cy="260" r="3.5" fill="#FEBC2E" opacity="0.7" class="pulse-anim" style="animation-delay: 0.3s"/>
+    <circle cx="595" cy="260" r="3.5" fill="#28C840" opacity="0.7" class="pulse-anim" style="animation-delay: 0.6s"/>
   </g>
 
-  <!-- NeuroDraw wordmark -->
-  <text x="1018" y="107" font-size="42" font-weight="800" fill="url(#wordmarkGrad)" letter-spacing="-1.8" opacity="0.97">NeuroDraw</text>
+  <!-- ═══════════════════════════════════════════
+       RIGHT TEXT BLOCK
+  ═══════════════════════════════════════════ -->
+  <g>
+    <!-- Logo -->
+    <g class="float-anim">
+      <rect x="955" y="72" width="52" height="52" rx="14" fill="url(#logoGrad)" filter="url(#glow)"/>
+      <g transform="translate(967, 84)" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 4a3.3 3.3 0 0 1 4.7 4.7L8.7 24.3 2 26l1.7-6.7Z"/>
+        <path d="m17.5 6.5 4.7 4.7"/>
+      </g>
+      <!-- Online indicator -->
+      <circle cx="1001" cy="78" r="4" fill="#34D399" class="heartbeat"/>
+      <circle cx="1001" cy="78" r="4" fill="none" stroke="#34D399" stroke-width="1" opacity="0.5">
+        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
 
-  <!-- Tagline -->
-  <text x="955" y="152" font-size="15.5" fill="#EEEEF8" opacity="0.52" letter-spacing="0.01em">Sketch → ControlNet → Stable Diffusion → Art</text>
+    <!-- Wordmark -->
+    <text x="1018" y="107" font-size="42" font-weight="800" fill="url(#wordmarkGrad)" letter-spacing="-1.8" opacity="0.97" class="glow-text float-anim" style="animation-delay: 0.3s">NeuroDraw</text>
 
-  <!-- Divider line -->
-  <rect x="955" y="168" width="280" height="1" fill="#FFFFFF" opacity="0.07"/>
+    <!-- Tagline -->
+    <text x="955" y="152" font-size="15.5" fill="#EEEEF8" opacity="0" letter-spacing="0.01em" class="fade-in" style="animation-delay: 1.2s">Sketch → ControlNet → Stable Diffusion → Art</text>
 
-  <!-- Tech chips row -->
-  <!-- ControlNet chip -->
-  <rect x="955" y="182" width="86" height="24" rx="6" fill="#131320" stroke="#FF5B35" stroke-width="0.8" stroke-opacity="0.5"/>
-  <text x="998" y="198" text-anchor="middle" font-size="10.5" fill="#FF5B35" opacity="0.9" font-family="'Courier New', monospace">ControlNet</text>
+    <!-- Divider -->
+    <rect x="955" y="168" width="280" height="1" fill="#FFFFFF" opacity="0" class="fade-in" style="animation-delay: 1.8s"/>
 
-  <!-- SD chip -->
-  <rect x="1049" y="182" width="68" height="24" rx="6" fill="#131320" stroke="#4F9EFF" stroke-width="0.8" stroke-opacity="0.5"/>
-  <text x="1083" y="198" text-anchor="middle" font-size="10.5" fill="#4F9EFF" opacity="0.9" font-family="'Courier New', monospace">SD v1.5</text>
+    <!-- Chips -->
+    <g class="fade-in chip" style="animation-delay: 1.8s">
+      <rect x="955" y="182" width="86" height="24" rx="6" fill="#131320" stroke="#FF5B35" stroke-width="0.8" stroke-opacity="0.5"/>
+      <text x="998" y="198" text-anchor="middle" font-size="10.5" fill="#FF5B35" opacity="0.9" font-family="'Courier New', monospace">ControlNet</text>
+    </g>
 
-  <!-- CLIP chip -->
-  <rect x="1125" y="182" width="46" height="24" rx="6" fill="#131320" stroke="#34D399" stroke-width="0.8" stroke-opacity="0.5"/>
-  <text x="1148" y="198" text-anchor="middle" font-size="10.5" fill="#34D399" opacity="0.9" font-family="'Courier New', monospace">CLIP</text>
+    <g class="fade-in chip" style="animation-delay: 2s">
+      <rect x="1049" y="182" width="68" height="24" rx="6" fill="#131320" stroke="#4F9EFF" stroke-width="0.8" stroke-opacity="0.5"/>
+      <text x="1083" y="198" text-anchor="middle" font-size="10.5" fill="#4F9EFF" opacity="0.9" font-family="'Courier New', monospace">SD v1.5</text>
+    </g>
 
-  <!-- Stats -->
-  <text x="955" y="236" font-size="13" fill="#EEEEF8" opacity="0.35" letter-spacing="0.01em">3–8 sec · 11 styles · 100% local · MIT license</text>
+    <g class="fade-in chip" style="animation-delay: 2.2s">
+      <rect x="1125" y="182" width="46" height="24" rx="6" fill="#131320" stroke="#34D399" stroke-width="0.8" stroke-opacity="0.5"/>
+      <text x="1148" y="198" text-anchor="middle" font-size="10.5" fill="#34D399" opacity="0.9" font-family="'Courier New', monospace">CLIP</text>
+    </g>
 
-  <!-- Version badge -->
-  <rect x="955" y="252" width="52" height="20" rx="4" fill="#FF5B35" opacity="0.15"/>
-  <rect x="955" y="252" width="52" height="20" rx="4" stroke="#FF5B35" stroke-width="0.8" fill="none" opacity="0.4"/>
-  <text x="981" y="265.5" text-anchor="middle" font-size="9.5" fill="#FF5B35" opacity="0.9" font-family="'Courier New', monospace">v1.0.0</text>
+    <!-- Stats -->
+    <text x="955" y="236" font-size="13" fill="#EEEEF8" opacity="0" letter-spacing="0.01em" class="fade-in" style="animation-delay: 2.4s">3–8 sec · 11 styles · 100% local · MIT license</text>
 
-  <rect x="1014" y="252" width="52" height="20" rx="4" fill="#34D399" opacity="0.1"/>
-  <rect x="1014" y="252" width="52" height="20" rx="4" stroke="#34D399" stroke-width="0.8" fill="none" opacity="0.35"/>
-  <text x="1040" y="265.5" text-anchor="middle" font-size="9.5" fill="#34D399" opacity="0.9" font-family="'Courier New', monospace">MIT</text>
+    <!-- Badges -->
+    <g class="fade-in" style="animation-delay: 2.4s">
+      <rect x="955" y="252" width="52" height="20" rx="4" fill="#FF5B35" opacity="0.15"/>
+      <rect x="955" y="252" width="52" height="20" rx="4" stroke="#FF5B35" stroke-width="0.8" fill="none" opacity="0.4"/>
+      <text x="981" y="265.5" text-anchor="middle" font-size="9.5" fill="#FF5B35" opacity="0.9" font-family="'Courier New', monospace">v1.0.0</text>
+    </g>
 
-  <rect x="1073" y="252" width="64" height="20" rx="4" fill="#4F9EFF" opacity="0.1"/>
-  <rect x="1073" y="252" width="64" height="20" rx="4" stroke="#4F9EFF" stroke-width="0.8" fill="none" opacity="0.35"/>
-  <text x="1105" y="265.5" text-anchor="middle" font-size="9.5" fill="#4F9EFF" opacity="0.9" font-family="'Courier New', monospace">Flask+PyTorch</text>
+    <g class="fade-in" style="animation-delay: 2.8s">
+      <rect x="1014" y="252" width="52" height="20" rx="4" fill="#34D399" opacity="0.1"/>
+      <rect x="1014" y="252" width="52" height="20" rx="4" stroke="#34D399" stroke-width="0.8" fill="none" opacity="0.35"/>
+      <text x="1040" y="265.5" text-anchor="middle" font-size="9.5" fill="#34D399" opacity="0.9" font-family="'Courier New', monospace">MIT</text>
+    </g>
 
+    <g class="fade-in" style="animation-delay: 3s">
+      <rect x="1073" y="252" width="64" height="20" rx="4" fill="#4F9EFF" opacity="0.1"/>
+      <rect x="1073" y="252" width="64" height="20" rx="4" stroke="#4F9EFF" stroke-width="0.8" fill="none" opacity="0.35"/>
+      <text x="1105" y="265.5" text-anchor="middle" font-size="9.5" fill="#4F9EFF" opacity="0.9" font-family="'Courier New', monospace">Flask+PyTorch</text>
+    </g>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       PARTICLES & VIGNETTE
+  ═══════════════════════════════════════════ -->
+  <g id="particles"></g>
+  <rect width="1280" height="340" fill="url(#vignette)" style="pointer-events: none;"/>
 </svg>
