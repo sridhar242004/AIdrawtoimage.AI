@@ -15,7 +15,7 @@
 
 <br/>
 
-**Draw anything. NeuroDraw renders it into photorealistic AI art — in 3 seconds, on your own hardware.**
+**Draw anything. NeuroDraw renders it into photorealistic AI art — in 10 minutes , on your own hardware.**
 
 *ControlNet preserves your sketch structure. Stable Diffusion fills in the reality. CLIP understands the semantics.*  
 *No cloud. No subscriptions. No data leaves your machine.*
