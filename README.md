@@ -66,7 +66,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 
 | Sketch | Photorealistic | Cyberpunk | Fantasy |
 |:---:|:---:|:---:|:---:|
-| ![sketch](docs/examples/sketch_mountain.svg) | ![result](docs/examples/mountain_photo.jpg) | ![result](docs/examples/mountain_cyber.jpg) | ![result](docs/examples/mountain_fantasy.jpg) |
+| ![sketch](images/Screenshot 2026-06-18 161331.png) | ![result](docs/examples/mountain_photo.jpg) | ![result](docs/examples/mountain_cyber.jpg) | ![result](docs/examples/mountain_fantasy.jpg) |
 | *(your 30-second scrawl)* | `style: photorealistic` | `style: cyberpunk` | `style: fantasy` |
 
 > 📌 **Replace the placeholders above** with your actual generated images. See `docs/examples/` for the sketch SVGs.
