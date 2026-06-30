@@ -33,7 +33,7 @@
 
 <div align="center">
 
-<video src="images/Video Project.mp4" width="100%" autoplay loop muted playsinline></video>
+<img src="images/neurodraw_demo.gif" alt="NeuroDraw live demo — sketch to AI art in real time" width="100%"/>
 
 </div>
 
@@ -936,7 +936,7 @@ neurodraw/
 │   └── create_app()            # Flask application factory
 │
 ├── static/images/              # local demo images (Flask static)
-│   └── Video Project.mp4       # ← live demo video
+│   └── neurodraw_demo.gif      # ← live demo GIF (README hero)
 ├── docs/
 │   ├── banner.svg              # README header graphic
 │   └── examples/               # sketch + result image pairs for README
