@@ -90,7 +90,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
   <tbody>
     <tr>
       <td align="center"><img src="images/Screenshot%202026-06-18%20161331.png" alt="sketch" width="200"></td>
-      <td align="center"><img src="images/photorealistic.png" alt="result" width="200"></td>
+      <td align="center"><img src="images/photorealistic .png" alt="result" width="200"></td>
       <td align="center"><img src="images/cyber.png" alt="result" width="200"></td>
       <td align="center"><img src="images/fantasy.png" alt="result" width="200"></td>
     </tr>
