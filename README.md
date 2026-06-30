@@ -32,7 +32,11 @@
 
 <div align="center">
 
-<video src="images/Video Project.mp4" width="100%" autoplay loop muted playsinline></video>
+![NeuroDraw Live Demo](demo.gif)
+
+<br/>
+
+<sup>🎥 Sketch → AI Art in real-time. Auto-playing loop above.</sup>
 
 </div>
 
@@ -86,7 +90,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
   <tbody>
     <tr>
       <td align="center"><img src="images/Screenshot%202026-06-18%20161331.png" alt="sketch" width="200"></td>
-      <td align="center"><img src="images/photorealistic .png" alt="result" width="200"></td>
+      <td align="center"><img src="images/photorealistic.png" alt="result" width="200"></td>
       <td align="center"><img src="images/cyber.png" alt="result" width="200"></td>
       <td align="center"><img src="images/fantasy.png" alt="result" width="200"></td>
     </tr>
@@ -672,7 +676,8 @@ neurodraw/
 │   └── create_app()            # Flask application factory
 │
 ├── static/images/              # local demo images (Flask static)
-│   └── Video Project.mp4       # ← live demo video
+│   ├── Video Project.mp4       # ← live demo video (source)
+│   └── demo.gif                # ← live demo GIF (auto-playing)
 ├── docs/
 │   ├── banner.svg              # README header graphic
 │   └── examples/               # sketch + result image pairs for README
