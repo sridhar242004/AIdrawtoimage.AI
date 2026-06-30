@@ -11,11 +11,11 @@
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
 [![CUDA](https://img.shields.io/badge/CUDA-11.8%2B-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://developer.nvidia.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-FF5B35?style=for-the-badge)](LICENSE)
-[![HuggingFace](https://img.shields.io/badge/🤗_Diffusers-0.24%2B-FFD21E?style=for-the-badge)](https://huggingface.co/docs/diffusers)
+[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97_Diffusers-0.24%2B-FFD21E?style=for-the-badge)](https://huggingface.co/docs/diffusers)
 
 <br/>
 
-**Draw anything. NeuroDraw renders it into photorealistic AI art — in 10 minutes , on your own hardware.**
+**Draw anything. NeuroDraw renders it into photorealistic AI art — in 10 minutes, on your own hardware.**
 
 *ControlNet preserves your sketch structure. Stable Diffusion fills in the reality. CLIP understands the semantics.*  
 *No cloud. No subscriptions. No data leaves your machine.*
@@ -24,6 +24,26 @@
 
 [**Getting Started**](#-getting-started) &ensp;·&ensp; [**API Reference**](#-api-reference) &ensp;·&ensp; [**Architecture**](#-architecture) &ensp;·&ensp; [**Styles Gallery**](#-styles-gallery) &ensp;·&ensp; [**Deploy**](#-production-deployment)
 
+</div>
+
+---
+
+## 🎬 Live Demo
+
+<div align="center">
+
+https://github.com/user-attachments/assets/Video-Project
+
+</div>
+
+> **Note:** For the video to auto-play and loop in the README, upload it via GitHub's issue/PR attachment flow (drag & drop into an issue comment, copy the generated `user-attachments` URL), or convert `images/Video Project.mp4` to a GIF using:
+> ```bash
+> ffmpeg -i "images/Video Project.mp4" -vf "fps=30,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse" -loop 0 demo.gif
+> ```
+> Then replace the `<video>` block below with `![Demo](demo.gif)`.
+
+<div align="center">
+  <video src="images/Video%20Project.mp4" width="100%" autoplay loop muted playsinline></video>
 </div>
 
 ---
@@ -262,24 +282,38 @@ volumes:
 
 ```mermaid
 flowchart TD
-    A["🌐 Browser\nCanvas · Fetch API"] -->|"POST /api/generate\n{ sketch, prompt, mode, art_style }"| B
+    A["🌐 Browser
+Canvas · Fetch API"] -->|"POST /api/generate
+{ sketch, prompt, mode, art_style }"| B
 
     subgraph Flask ["⚡ Flask Application"]
-        B["Route Handler\n/api/generate"] --> C["ImageProcessor\n① base64 decode\n② Lanczos4 → 512×512\n③ Adaptive Canny edge map"]
-        C --> D["GenerationService\n④ Build composite prompt\n⑤ Acquire inference lock\n⑥ Collect timing metrics"]
+        B["Route Handler
+/api/generate"] --> C["ImageProcessor
+① base64 decode
+② Lanczos4 → 512×512
+③ Adaptive Canny edge map"]
+        C --> D["GenerationService
+④ Build composite prompt
+⑤ Acquire inference lock
+⑥ Collect timing metrics"]
     end
 
     D --> E
 
     subgraph Models ["🧠 ModelManager · Singleton"]
-        E["_ready_event.wait()"] --> F["ControlNet\nlllyasviel/v11p_sd15_scribble"]
-        E --> G["Stable Diffusion v1.5\nrunwayml/stable-diffusion-v1-5"]
-        E --> H["CLIP ViT-B/32\nopenai/clip-vit-base-patch32"]
+        E["_ready_event.wait()"] --> F["ControlNet
+lllyasviel/v11p_sd15_scribble"]
+        E --> G["Stable Diffusion v1.5
+runwayml/stable-diffusion-v1-5"]
+        E --> H["CLIP ViT-B/32
+openai/clip-vit-base-patch32"]
     end
 
-    F & G -->|"torch.inference_mode()"| I["🖥 GPU — CUDA float16\nxFormers · VAE slicing · torch.compile"]
+    F & G -->|"torch.inference_mode()"| I["🖥 GPU — CUDA float16
+xFormers · VAE slicing · torch.compile"]
     I --> J["PIL Image 512×512"]
-    J --> K["base64 PNG\n+ timing metrics JSON"]
+    J --> K["base64 PNG
++ timing metrics JSON"]
     K -->|"{ success, image, prompt_used, metrics }"| A
 
     style Flask fill:#0C0C14,stroke:#4F9EFF,color:#EEEEF8
@@ -402,10 +436,7 @@ def neurodraw(sketch_path: str, prompt: str, style: str = "photorealistic") -> s
 ```bash
 B64="data:image/png;base64,$(base64 -w 0 sketch.png)"
 
-curl -s -X POST http://localhost:5000/api/generate \
-  -H "Content-Type: application/json" \
-  -d "{\"sketch\":\"$B64\",\"prompt\":\"cyberpunk city\",\"mode\":\"detailed\",\"art_style\":\"cyberpunk\"}" \
-  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['metrics'])"
+curl -s -X POST http://localhost:5000/api/generate   -H "Content-Type: application/json"   -d "{\"sketch\":\"$B64\",\"prompt\":\"cyberpunk city\",\"mode\":\"detailed\",\"art_style\":\"cyberpunk\"}"   | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['metrics'])"
 ```
 
 </details>
@@ -515,12 +546,10 @@ cfg = replace(AppConfig(), inference_steps=30, guidance_scale=9.0, output_size=(
 ```bash
 pip install gunicorn
 
-gunicorn \
-  --workers 1 \           # ← CRITICAL: Singleton ModelManager is process-scoped
+gunicorn   --workers 1 \           # ← CRITICAL: Singleton ModelManager is process-scoped
   --threads 4 \           # Use threads for concurrency within 1 worker
   --timeout 300 \         # Allow for full inference time
-  --bind 0.0.0.0:5000 \
-  "app:create_app()"
+  --bind 0.0.0.0:5000   "app:create_app()"
 ```
 
 > ⚠️ **Never use `--workers > 1`** — each worker loads models independently, multiplying VRAM usage. Use `--threads` instead.
@@ -558,9 +587,7 @@ After=network.target
 [Service]
 User=neurodraw
 WorkingDirectory=/opt/neurodraw
-ExecStart=/opt/neurodraw/.venv/bin/gunicorn \
-    --workers 1 --threads 4 --timeout 300 \
-    --bind 0.0.0.0:5000 "app:create_app()"
+ExecStart=/opt/neurodraw/.venv/bin/gunicorn     --workers 1 --threads 4 --timeout 300     --bind 0.0.0.0:5000 "app:create_app()"
 Restart=on-failure
 Environment=ACCELERATE_DISABLE_RICH=1
 Environment=TF_CPP_MIN_LOG_LEVEL=3
@@ -662,6 +689,7 @@ neurodraw/
 │   └── create_app()            # Flask application factory
 │
 ├── static/images/              # local demo images (Flask static)
+│   └── Video Project.mp4       # ← live demo video
 ├── docs/
 │   ├── banner.svg              # README header graphic
 │   └── examples/               # sketch + result image pairs for README
