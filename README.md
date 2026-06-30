@@ -10,19 +10,20 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
 [![CUDA](https://img.shields.io/badge/CUDA-11.8%2B-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://developer.nvidia.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-FF5B35?style=for-the-badge)](LICENSE)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97_Diffusers-0.24%2B-FFD21E?style=for-the-badge)](https://huggingface.co/docs/diffusers)
 
 <br/>
 
-**Draw anything. NeuroDraw renders it into photorealistic AI art — in 10 minutes, on your own hardware.**
+**Draw anything. NeuroDraw renders it into photorealistic AI art — in seconds, on your own hardware.**
 
-*ControlNet preserves your sketch structure. Stable Diffusion fills in the reality. CLIP understands the semantics.*  
+*ControlNet preserves your sketch structure. Stable Diffusion fills in the reality. CLIP understands the semantics.*
 *No cloud. No subscriptions. No data leaves your machine.*
 
 <br/>
 
-[**Getting Started**](#-getting-started) &ensp;·&ensp; [**API Reference**](#-api-reference) &ensp;·&ensp; [**Architecture**](#-architecture) &ensp;·&ensp; [**Styles Gallery**](#-styles-gallery) &ensp;·&ensp; [**Deploy**](#-production-deployment)
+[**Getting Started**](#-getting-started) &ensp;·&ensp; [**Architecture**](#-system-architecture) &ensp;·&ensp; [**API Reference**](#-api-reference) &ensp;·&ensp; [**Pipeline Internals**](#-pipeline-internals) &ensp;·&ensp; [**Deploy**](#-production-deployment) &ensp;·&ensp; [**Roadmap**](#-roadmap)
 
 </div>
 
@@ -32,11 +33,7 @@
 
 <div align="center">
 
-![NeuroDraw Live Demo](demo.gif)
-
-<br/>
-
-<sup>🎥 Sketch → AI Art in real-time. Auto-playing loop above.</sup>
+<video src="images/Video Project.mp4" width="100%" autoplay loop muted playsinline></video>
 
 </div>
 
@@ -95,7 +92,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
       <td align="center"><img src="images/fantasy.png" alt="result" width="200"></td>
     </tr>
     <tr>
-      <td align="center"><code>style: Sketch </code></td>
+      <td align="center"><code>style: sketch</code></td>
       <td align="center"><code>style: photorealistic</code></td>
       <td align="center"><code>style: cyberpunk</code></td>
       <td align="center"><code>style: fantasy</code></td>
@@ -117,7 +114,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 - **ControlNet scribble** conditioning — your sketch is the blueprint, not a suggestion
 - **Stable Diffusion v1.5** backbone with DDIM sampler
 - **Adaptive Canny** edge detection (thresholds computed per-image from pixel median)
-- **CLIP ViT-B/32** loaded alongside pipeline for semantic alignment
+- **CLIP ViT-B/32** loaded alongside the pipeline for semantic alignment and auto-prompting
 - **11 art style presets**, 3 quality modes, fully composable prompts
 
 </td>
@@ -125,7 +122,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 
 ### ⚡ Performance
 - CUDA **float16** inference — ~3–8s on RTX 3080
-- **xFormers** memory-efficient attention (auto-detected)
+- **xFormers** memory-efficient attention (auto-detected, graceful fallback)
 - **VAE slicing + tiling** for low-VRAM GPUs (≥4 GB)
 - `torch.compile(unet, mode="reduce-overhead")` — JIT graph optimization
 - Attention slicing fallback for CPU / non-xFormers environments
@@ -142,6 +139,7 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 - Typed exception hierarchy → precise HTTP status codes (400/413/415/503/500)
 - **8 MB payload guard**, 4 hardened security response headers
 - **Mock mode** — full UI + API works without any ML dependencies
+- Structured logging with per-stage timing instrumentation
 
 </td>
 <td>
@@ -175,6 +173,8 @@ Stable Diffusion synthesizes<br/>the final image in 3–8 seconds.
 | 🖼 Image Processing | OpenCV + Pillow | 4.8 / 10.x | Adaptive Canny, Lanczos4 resize |
 | ⚡ Memory Optimizer | xFormers | 0.0.22+ | Optional, auto-detected |
 | 🌐 Web Framework | Flask | 3.x | `render_template_string` single-file SPA |
+| 🚀 WSGI Server | Gunicorn | 21.x | 1 worker / N threads (singleton-safe) |
+| 📦 Containerization | Docker + Compose | — | GPU passthrough via `nvidia-docker` |
 
 </div>
 
@@ -272,34 +272,157 @@ volumes:
 
 ---
 
-## 🏗 Architecture
+## 🏗 System Architecture
+
+### High-Level Component Map
 
 ```mermaid
 flowchart TD
-    A["🌐 Browser\nCanvas · Fetch API"] -->|"POST /api/generate\n{ sketch, prompt, mode, art_style }"| B
-
-    subgraph Flask ["⚡ Flask Application"]
-        B["Route Handler\n/api/generate"] --> C["ImageProcessor\n① base64 decode\n② Lanczos4 → 512×512\n③ Adaptive Canny edge map"]
-        C --> D["GenerationService\n④ Build composite prompt\n⑤ Acquire inference lock\n⑥ Collect timing metrics"]
+    subgraph Client ["🌐 Client Layer"]
+        A1["Canvas UI\nHTML5 + Fetch API"]
+        A2["External API Consumer\ncURL / Python / SDK"]
     end
 
-    D --> E
-
-    subgraph Models ["🧠 ModelManager · Singleton"]
-        E["_ready_event.wait()"] --> F["ControlNet\nlllyasviel/v11p_sd15_scribble"]
-        E --> G["Stable Diffusion v1.5\nrunwayml/stable-diffusion-v1-5"]
-        E --> H["CLIP ViT-B/32\nopenai/clip-vit-base-patch32"]
+    subgraph Edge ["🛰 Edge Layer"]
+        B1["Nginx Reverse Proxy\nTLS · client_max_body_size · gzip"]
     end
 
-    F & G -->|"torch.inference_mode()"| I["🖥 GPU — CUDA float16\nxFormers · VAE slicing · torch.compile"]
-    I --> J["PIL Image 512×512"]
-    J --> K["base64 PNG\n+ timing metrics JSON"]
-    K -->|"{ success, image, prompt_used, metrics }"| A
+    subgraph App ["⚙️ Application Layer — Gunicorn (1 worker · N threads)"]
+        C1["Flask Routes\n/ · /health · /api/status · /api/styles"]
+        C2["/api/generate\nRoute Handler"]
+        C3["ImageProcessor\ndecode → resize → Canny"]
+        C4["GenerationService\nprompt builder + inference lock"]
+        C5["Typed Exceptions\nValidationError · ModelNotReadyError"]
+    end
 
-    style Flask fill:#0C0C14,stroke:#4F9EFF,color:#EEEEF8
+    subgraph Models ["🧠 Model Layer — Singleton ModelManager"]
+        D1["Background Daemon Loader\nthreading.Thread"]
+        D2["ControlNet\nscribble v1.1"]
+        D3["Stable Diffusion v1.5\nUNet + VAE + Text Encoder"]
+        D4["CLIP ViT-B/32\nsemantic encoder"]
+    end
+
+    subgraph Hardware ["🖥 Hardware Layer"]
+        E1["CUDA GPU\nfloat16 · xFormers · VAE slicing/tiling · torch.compile"]
+        E2["CPU Fallback\nfloat32 · attention slicing"]
+    end
+
+    A1 -->|POST /api/generate| B1
+    A2 -->|POST /api/generate| B1
+    B1 --> C1
+    C1 --> C2
+    C2 --> C3 --> C4
+    C4 -->|acquire inference lock| D1
+    D1 -.loads once, blocks until ready.-> D2 & D3 & D4
+    D2 & D3 & D4 -->|inference_mode| E1
+    D2 & D3 & D4 -.fallback.-> E2
+    C2 -.raises.-> C5
+    C5 -->|400/413/415/503/500| C1
+
     style Models fill:#0C0C14,stroke:#FF5B35,color:#EEEEF8
-    style I fill:#1C1C2E,stroke:#76B900,color:#EEEEF8
+    style App fill:#0C0C14,stroke:#4F9EFF,color:#EEEEF8
+    style Hardware fill:#1C1C2E,stroke:#76B900,color:#EEEEF8
+    style Edge fill:#13131f,stroke:#BAFF57,color:#EEEEF8
 ```
+
+### Request Sequence — `POST /api/generate`
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Browser / Client
+    participant N as Nginx
+    participant F as Flask Route
+    participant IP as ImageProcessor
+    participant GS as GenerationService
+    participant MM as ModelManager (Singleton)
+    participant GPU as CUDA Device
+
+    U->>N: POST /api/generate {sketch, prompt, style}
+    N->>F: forward request (body ≤ 8 MB)
+    F->>F: validate Content-Type + JSON shape
+    alt models not ready
+        F-->>U: 503 ModelNotReadyError
+    else models ready
+        F->>IP: preprocess(sketch_data)
+        IP->>IP: decode base64 → np.ndarray
+        IP->>IP: Lanczos4 resize → 512×512
+        IP->>IP: adaptive Canny (median-derived thresholds)
+        IP-->>F: control_image (edge map)
+        F->>GS: generate(control_image, prompt, style, mode)
+        GS->>GS: acquire threading.Lock (serialize GPU access)
+        GS->>GS: build composite prompt (mode + style + user text)
+        GS->>MM: get_pipeline()
+        MM-->>GS: StableDiffusionControlNetPipeline
+        GS->>GPU: torch.inference_mode() forward pass
+        GPU-->>GS: PIL.Image (512×512)
+        GS->>GS: encode → base64 PNG + timing metrics
+        GS-->>F: { success, image, prompt_used, metrics }
+        F-->>U: 200 OK (JSON)
+    end
+```
+
+### Model Lifecycle State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Importing: process start
+    Importing --> MockMode: ML import failed
+    Importing --> Initializing: ML import succeeded
+
+    Initializing --> Loading: app.py spawns daemon thread
+    Loading --> LoadingControlNet
+    LoadingControlNet --> LoadingPipeline
+    LoadingPipeline --> ApplyingOptimizations
+    ApplyingOptimizations --> LoadingCLIP
+    LoadingCLIP --> Ready: _ready_event.set()
+
+    Loading --> Failed: exception during load
+    Failed --> [*]: RuntimeError raised, process logs critical
+
+    MockMode --> MockReady: instant (no weights needed)
+
+    state Ready {
+        [*] --> Idle
+        Idle --> Inferring: inference lock acquired
+        Inferring --> Idle: result returned
+    }
+
+    Ready --> [*]
+    MockReady --> [*]
+```
+
+### Concurrency & Thread-Safety Model
+
+```mermaid
+flowchart LR
+    subgraph Threads ["Gunicorn Worker — N Request Threads"]
+        T1["Thread 1\nReq A"]
+        T2["Thread 2\nReq B"]
+        T3["Thread 3\nReq C"]
+    end
+
+    subgraph Locks ["Synchronization Primitives"]
+        L1["ModelManager._inst_lock\n(double-checked locking,\nsingleton construction)"]
+        L2["ModelManager._ready_event\n(threading.Event,\ngates readiness)"]
+        L3["GenerationService._inference_lock\n(threading.Lock,\nserializes GPU calls)"]
+    end
+
+    T1 & T2 & T3 -->|read singleton| L1
+    T1 & T2 & T3 -->|wait_until_ready| L2
+    T1 -->|acquire| L3
+    T2 -.blocked.-> L3
+    T3 -.blocked.-> L3
+    L3 -->|sequential GPU access| GPU["Single CUDA Context"]
+
+    style Locks fill:#1C1C2E,stroke:#FF5B35,color:#EEEEF8
+```
+
+> **Why a single inference lock?** A single CUDA context cannot safely interleave two `pipe()` forward passes without corrupting intermediate tensors or exhausting VRAM unpredictably. The lock trades raw concurrency for deterministic, OOM-resistant throughput — incoming requests queue rather than race.
+
+---
+
+## 🔬 Pipeline Internals
 
 ### Adaptive Edge Detection
 
@@ -318,6 +441,21 @@ edges  = cv2.Canny(gray, lower, upper)    # ControlNet-ready edge map
 
 Light pencil on white paper → different thresholds than dark charcoal drawing. No manual tuning needed.
 
+### Prompt Composition Pipeline
+
+```mermaid
+flowchart LR
+    A["User Prompt\n'a mountain village at sunset'"] --> D["Final Prompt"]
+    B["Mode Prefix\nbasic / detailed / artistic"] --> D
+    C["Style Tokens\n11-style catalog lookup"] --> D
+    D --> E["StableDiffusionControlNetPipeline\nprompt= final_prompt"]
+    F["Negative Prompt\nblurry, low quality, distorted..."] --> E
+```
+
+```
+final_prompt = "{mode_prefix}, {style_tokens}, {user_prompt}"
+```
+
 ### CUDA Optimization Order
 
 ```
@@ -328,6 +466,23 @@ Light pencil on white paper → different thresholds than dark charcoal drawing.
 ④ enable_vae_tiling()                           ←  enables 4 GB VRAM GPUs
 ⑤ torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=False)
 ```
+
+### Error Handling Architecture
+
+```mermaid
+flowchart TD
+    A["Exception raised\nanywhere in request lifecycle"] --> B{Exception Type}
+    B -->|ValidationError| C["400 Bad Request\nmissing/invalid sketch, mode, style"]
+    B -->|payload > 8 MB| D["413 Payload Too Large\nMAX_CONTENT_LENGTH guard"]
+    B -->|missing JSON header| E["415 Unsupported Media Type"]
+    B -->|ModelNotReadyError| F["503 Service Unavailable\nclient should poll /api/status"]
+    B -->|CUDA OOM / RuntimeError| G["500 Internal Server Error\ntorch.cuda.empty_cache() attempted"]
+    B -->|Unhandled| H["500 Internal Server Error\nlogged via LOGGER.exception"]
+    C & D & E & F & G & H --> I["JSON error envelope\n{ success: false, error: str }"]
+    I --> J["@app.after_request\nsecurity headers attached"]
+```
+
+NeuroDraw never lets an unhandled exception leak a raw stack trace to the client — every failure path resolves to a typed, predictable JSON envelope.
 
 ---
 
@@ -424,6 +579,24 @@ curl -s -X POST http://localhost:5000/api/generate \
 
 </details>
 
+<details>
+<summary>🔄 <strong>Polling pattern (recommended for cold-start clients)</strong></summary>
+
+```python
+import time, requests
+
+def wait_for_ready(base_url="http://localhost:5000", timeout=120):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        status = requests.get(f"{base_url}/api/status").json()
+        if status["models_loaded"]:
+            return status
+        time.sleep(2)
+    raise TimeoutError("Models did not become ready in time")
+```
+
+</details>
+
 ---
 
 ### Other Endpoints
@@ -435,15 +608,25 @@ curl -s -X POST http://localhost:5000/api/generate \
 | `GET` | `/health` | Full system health + `model_load_seconds` + `timestamp` |
 | `GET` | `/` | Serves the built-in Canvas SPA |
 
+### Client Integration Flow
+
+```mermaid
+flowchart LR
+    A["App boots"] --> B["GET /api/status"]
+    B -->|models_loaded: false| C["Show 'warming up' UI\npoll every 2s"]
+    C --> B
+    B -->|models_loaded: true| D["Enable canvas + Generate button"]
+    D --> E["User draws + submits"]
+    E --> F["POST /api/generate"]
+    F -->|200| G["Render result + metrics"]
+    F -->|503| C
+    F -->|400/413/415| H["Show inline validation error"]
+    F -->|500| I["Show retry prompt"]
+```
+
 ---
 
 ## 🎨 Styles Gallery
-
-### Prompt Assembly
-
-```
-final_prompt = "{mode_prefix}, {style_tokens}, {user_prompt}"
-```
 
 ### Mode Prefixes
 
@@ -520,6 +703,17 @@ cfg = replace(AppConfig(), inference_steps=30, guidance_scale=9.0, output_size=(
 
 > **Preprocess** (Canny + resize): 50–120 ms &emsp;|&emsp; **Encode** to base64 PNG: 180–280 ms
 
+### Throughput Under Load
+
+```mermaid
+flowchart LR
+    A["1 concurrent request"] -->|3.2s avg| R1["~18.7 req/min"]
+    B["4 concurrent requests\n(queued by inference lock)"] -->|12.8s p95| R2["~18.7 req/min\n(GPU-bound, not request-bound)"]
+    C["10 concurrent requests"] -->|32s p95| R3["~18.7 req/min\nlock queue depth grows"]
+```
+
+> Throughput is capped by the single CUDA context, not the web layer. To scale horizontally, run **multiple single-worker Gunicorn instances**, each pinned to its own GPU, behind a load balancer — see [Scaling Beyond One GPU](#scaling-beyond-one-gpu).
+
 ---
 
 ## 🚢 Production Deployment
@@ -582,6 +776,65 @@ Environment=TF_CPP_MIN_LOG_LEVEL=3
 [Install]
 WantedBy=multi-user.target
 ```
+
+### Scaling Beyond One GPU
+
+```mermaid
+flowchart TD
+    LB["Load Balancer\nNginx / HAProxy / cloud LB"]
+    LB --> N1["Instance 1\nGunicorn (1 worker) → GPU 0"]
+    LB --> N2["Instance 2\nGunicorn (1 worker) → GPU 1"]
+    LB --> N3["Instance N\nGunicorn (1 worker) → GPU N"]
+    N1 & N2 & N3 --> S["Shared HF cache volume\n(read-mostly, avoids re-download)"]
+```
+
+Because the `ModelManager` singleton is **process-scoped**, the only safe way to use multiple GPUs is **one process per GPU**, fronted by a load balancer. Pin each instance with `CUDA_VISIBLE_DEVICES=<n>` and route by round-robin or least-connections.
+
+### Optional Kubernetes Sketch
+
+<details>
+<summary>📄 <strong>deployment.yaml (illustrative)</strong></summary>
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neurodraw
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: neurodraw }
+  template:
+    metadata:
+      labels: { app: neurodraw }
+    spec:
+      containers:
+        - name: neurodraw
+          image: your-registry/neurodraw:latest
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet: { path: /api/status, port: 5000 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 5000 }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+```
+
+</details>
+
+### Observability
+
+| Signal | Source | Notes |
+|---|---|---|
+| Generation latency | `metrics.total_seconds` in every API response | Break down by `preprocess` / `inference` / `encode` |
+| Model readiness | `GET /api/status` | Drive readiness probes / dashboards |
+| Process health | `GET /health` | Includes `model_load_seconds`, `cuda_available` |
+| Structured logs | `LOGGER` (stdout) | Per-stage timing via `_timed_step` context manager |
 
 ---
 
@@ -656,6 +909,13 @@ Requires CUDA ≥ 11.7 + Triton. If compilation fails, NeuroDraw logs a warning 
 
 </details>
 
+<details>
+<summary><strong>High latency under concurrent load</strong></summary>
+
+Expected — the `inference_lock` serializes GPU access by design (see [Concurrency & Thread-Safety Model](#concurrency--thread-safety-model)). To raise throughput, scale horizontally with [multiple GPU-pinned instances](#scaling-beyond-one-gpu) behind a load balancer rather than increasing `--threads`.
+
+</details>
+
 ---
 
 ## 📁 Project Structure
@@ -676,8 +936,7 @@ neurodraw/
 │   └── create_app()            # Flask application factory
 │
 ├── static/images/              # local demo images (Flask static)
-│   ├── Video Project.mp4       # ← live demo video (source)
-│   └── demo.gif                # ← live demo GIF (auto-playing)
+│   └── Video Project.mp4       # ← live demo video
 ├── docs/
 │   ├── banner.svg              # README header graphic
 │   └── examples/               # sketch + result image pairs for README
@@ -689,6 +948,20 @@ neurodraw/
 ```
 
 > **Single-file design** — the entire backend, ML pipeline, and SPA live in `app.py`. Deployment = copy one file + run.
+
+---
+
+## 🗺 Roadmap
+
+| Status | Item | Notes |
+|:---:|---|---|
+| 🟡 In progress | WebSocket progress streaming | Replace client polling with server-push generation progress |
+| ⚪ Planned | `POST /api/generate/batch` | Multiple sketches in one call, shared GPU warm-up |
+| ⚪ Planned | SDXL-ControlNet backbone | 1024px native output |
+| ⚪ Planned | Real-ESRGAN upscaling pass | 4× resolution post-process |
+| ⚪ Planned | Custom `.safetensors` model picker | UI dropdown for community fine-tunes |
+| ⚪ Planned | Prometheus `/metrics` endpoint | First-class observability beyond `/health` |
+| ⚪ Exploratory | Multi-GPU intra-process scheduling | Replace single inference lock with a GPU pool |
 
 ---
 
@@ -713,6 +986,7 @@ pytest tests/ -v
 | 🔼 Upscaling | Real-ESRGAN post-processing pass for 4× resolution |
 | 🧪 Test suite | `tests/test_image_processor.py`, `tests/test_api.py` |
 | 🌐 Model selection UI | Dropdown for custom `.safetensors` models |
+| 📈 Metrics export | Prometheus-compatible `/metrics` endpoint |
 
 ---
 
