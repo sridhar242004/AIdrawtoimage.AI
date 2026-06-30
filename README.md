@@ -32,7 +32,7 @@
 
 <div align="center">
 
-<video src="images/Video%20Project.mp4" width="100%" autoplay loop muted playsinline></video>
+<video src="images/Video Project.mp4" width="100%" autoplay loop muted playsinline></video>
 
 </div>
 
