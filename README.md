@@ -32,7 +32,7 @@
 
 <div align="center">
 
-https://github.com/user-attachments/assets/Video-Project
+images/Video Project.mp4
 
 </div>
 
@@ -43,7 +43,7 @@ https://github.com/user-attachments/assets/Video-Project
 > Then replace the `<video>` block below with `![Demo](demo.gif)`.
 
 <div align="center">
-  <video src="images/Video%20Project.mp4" width="100%" autoplay loop muted playsinline></video>
+  <video src="images/Video Project.mp4" width="100%" autoplay loop muted playsinline></video>
 </div>
 
 ---
